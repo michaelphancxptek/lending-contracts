@@ -20,9 +20,9 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">Core Contracts</a>
+      <a href="#core-contracts">Core Contracts</a>
       <ul>
-        <li><a href="#built-with">LendingPoolAddressesProvider</a></li>
+        <li><a href="#lendingpooladdressesprovider">LendingPoolAddressesProvider</a></li>
       </ul>
       <ul>
         <li><a href="#built-with">LendingPoolAddressesProviderRegistry</a></li>
