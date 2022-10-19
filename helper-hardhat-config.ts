@@ -1,26 +1,32 @@
 // @ts-ignore
-import { HardhatNetworkForkingUserConfig, HardhatUserConfig } from 'hardhat/types';
+import {
+  HardhatNetworkForkingUserConfig,
+  HardhatUserConfig,
+} from "hardhat/types";
 import {
   eAvalancheNetwork,
   eEthereumNetwork,
   ePolygonNetwork,
+  eVchainNetwork,
   eXDaiNetwork,
   iParamsPerNetwork,
-} from './helpers/types';
+} from "./helpers/types";
 
-require('dotenv').config();
+require("dotenv").config();
 
-const INFURA_KEY = process.env.INFURA_KEY || '';
-const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
-const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || '';
-const FORK = process.env.FORK || '';
+const INFURA_KEY = process.env.INFURA_KEY || "";
+const ALCHEMY_KEY = process.env.ALCHEMY_KEY || "";
+const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || "";
+const FORK = process.env.FORK || "";
 const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER
   ? parseInt(process.env.FORK_BLOCK_NUMBER)
   : 0;
 
 const GWEI = 1000 * 1000 * 1000;
 
-export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
+export const buildForkConfig = ():
+  | HardhatNetworkForkingUserConfig
+  | undefined => {
   let forkMode;
   if (FORK) {
     forkMode = {
@@ -43,19 +49,20 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eEthereumNetwork.main]: ALCHEMY_KEY
     ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-  [eEthereumNetwork.coverage]: 'http://localhost:8555',
-  [eEthereumNetwork.hardhat]: 'http://localhost:8545',
-  [eEthereumNetwork.buidlerevm]: 'http://localhost:8545',
+  [eEthereumNetwork.coverage]: "http://localhost:8555",
+  [eEthereumNetwork.hardhat]: "http://localhost:8545",
+  [eEthereumNetwork.buidlerevm]: "http://localhost:8545",
   [eEthereumNetwork.tenderly]: `https://rpc.tenderly.co/fork/`,
-  [ePolygonNetwork.mumbai]: 'https://rpc-mumbai.maticvigil.com',
+  [ePolygonNetwork.mumbai]: "https://rpc-mumbai.maticvigil.com",
   [ePolygonNetwork.matic]:
     // 'https://rpc-mainnet.maticvigil.com/v1/e616b9ddc7598ffae92629f8145614d55094c722',
-    'https://polygon-mainnet.g.alchemy.com/v2/6NUmfWDZw6lC3RPAphj0p_2vm7ElOn2U',
+    "https://polygon-mainnet.g.alchemy.com/v2/6NUmfWDZw6lC3RPAphj0p_2vm7ElOn2U",
   // [ePolygonNetwork.matic]: 'https://rpc-mainnet.matic.network',
-  [eXDaiNetwork.xdai]: 'https://rpc.xdaichain.com/',
-  [eAvalancheNetwork.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
-  [eAvalancheNetwork.fuji]: 'https://api.avax-test.network/ext/bc/C/rpc',
+  [eXDaiNetwork.xdai]: "https://rpc.xdaichain.com/",
+  [eAvalancheNetwork.avalanche]: "https://api.avax.network/ext/bc/C/rpc",
+  [eAvalancheNetwork.fuji]: "https://api.avax-test.network/ext/bc/C/rpc",
   [eEthereumNetwork.goerli]: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  [eVchainNetwork.vdev]: `https://staging.rpc.vcex.xyz`,
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {

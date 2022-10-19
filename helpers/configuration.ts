@@ -5,25 +5,30 @@ import {
   PoolConfiguration,
   eNetwork,
   IBaseConfiguration,
-} from './types';
-import { getEthersSignersAddresses, getParamPerPool } from './contracts-helpers';
-import AaveConfig from '../markets/aave';
-import MaticConfig from '../markets/matic';
-import AvalancheConfig from '../markets/avalanche';
-import AmmConfig from '../markets/amm';
+} from "./types";
+import {
+  getEthersSignersAddresses,
+  getParamPerPool,
+} from "./contracts-helpers";
+import AaveConfig from "../markets/aave";
+import MaticConfig from "../markets/matic";
+import AvalancheConfig from "../markets/avalanche";
+import AmmConfig from "../markets/amm";
+import VchainConfig from "../markets/vchain";
 
-import { CommonsConfig } from '../markets/aave/commons';
-import { DRE, filterMapBy } from './misc-utils';
-import { tEthereumAddress } from './types';
-import { getParamPerNetwork } from './contracts-helpers';
-import { deployWETHMocked } from './contracts-deployments';
+import { CommonsConfig } from "../markets/aave/commons";
+import { DRE, filterMapBy } from "./misc-utils";
+import { tEthereumAddress } from "./types";
+import { getParamPerNetwork } from "./contracts-helpers";
+import { deployWETHMocked } from "./contracts-deployments";
 
 export enum ConfigNames {
-  Commons = 'Commons',
-  Aave = 'Aave',
-  Matic = 'Matic',
-  Amm = 'Amm',
-  Avalanche = 'Avalanche'
+  Commons = "Commons",
+  Aave = "Aave",
+  Matic = "Matic",
+  Amm = "Amm",
+  Avalanche = "Avalanche",
+  Vchain = "Vchain",
 }
 
 export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
@@ -34,10 +39,13 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       return MaticConfig;
     case ConfigNames.Amm:
       return AmmConfig;
-      case ConfigNames.Avalanche:
-        return AvalancheConfig;
+    case ConfigNames.Avalanche:
+      return AvalancheConfig;
     case ConfigNames.Commons:
       return CommonsConfig;
+    case ConfigNames.Vchain:
+      return VchainConfig;
+
     default:
       throw new Error(
         `Unsupported pool configuration: ${configName} is not one of the supported configs ${Object.values(
@@ -51,7 +59,9 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
 // PROTOCOL PARAMS PER POOL
 // ----------------
 
-export const getReservesConfigByPool = (pool: AavePools): iMultiPoolsAssets<IReserveParams> =>
+export const getReservesConfigByPool = (
+  pool: AavePools
+): iMultiPoolsAssets<IReserveParams> =>
   getParamPerPool<iMultiPoolsAssets<IReserveParams>>(
     {
       [AavePools.proto]: {
@@ -65,7 +75,7 @@ export const getReservesConfigByPool = (pool: AavePools): iMultiPoolsAssets<IRes
       },
       [AavePools.avalanche]: {
         ...AvalancheConfig.ReservesConfig,
-      }
+      },
     },
     pool
   );
@@ -74,7 +84,10 @@ export const getGenesisPoolAdmin = async (
   config: IBaseConfiguration
 ): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  const targetAddress = getParamPerNetwork(config.PoolAdmin, <eNetwork>currentNetwork);
+  const targetAddress = getParamPerNetwork(
+    config.PoolAdmin,
+    <eNetwork>currentNetwork
+  );
   if (targetAddress) {
     return targetAddress;
   }
@@ -83,9 +96,14 @@ export const getGenesisPoolAdmin = async (
   return addressList[addressIndex];
 };
 
-export const getEmergencyAdmin = async (config: IBaseConfiguration): Promise<tEthereumAddress> => {
+export const getEmergencyAdmin = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  const targetAddress = getParamPerNetwork(config.EmergencyAdmin, <eNetwork>currentNetwork);
+  const targetAddress = getParamPerNetwork(
+    config.EmergencyAdmin,
+    <eNetwork>currentNetwork
+  );
   if (targetAddress) {
     return targetAddress;
   }
@@ -94,15 +112,21 @@ export const getEmergencyAdmin = async (config: IBaseConfiguration): Promise<tEt
   return addressList[addressIndex];
 };
 
-export const getTreasuryAddress = async (config: IBaseConfiguration): Promise<tEthereumAddress> => {
+export const getTreasuryAddress = async (
+  config: IBaseConfiguration
+): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
+  return getParamPerNetwork(
+    config.ReserveFactorTreasuryAddress,
+    <eNetwork>currentNetwork
+  );
 };
 
 export const getATokenDomainSeparatorPerNetwork = (
   network: eNetwork,
   config: IBaseConfiguration
-): tEthereumAddress => getParamPerNetwork<tEthereumAddress>(config.ATokenDomainSeparator, network);
+): tEthereumAddress =>
+  getParamPerNetwork<tEthereumAddress>(config.ATokenDomainSeparator, network);
 
 export const getWethAddress = async (config: IBaseConfiguration) => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
@@ -110,21 +134,27 @@ export const getWethAddress = async (config: IBaseConfiguration) => {
   if (wethAddress) {
     return wethAddress;
   }
-  if (currentNetwork.includes('main')) {
-    throw new Error('WETH not set at mainnet configuration.');
+  if (currentNetwork.includes("main")) {
+    throw new Error("WETH not set at mainnet configuration.");
   }
   const weth = await deployWETHMocked();
   return weth.address;
 };
 
-export const getWrappedNativeTokenAddress = async (config: IBaseConfiguration) => {
-  const currentNetwork = process.env.MAINNET_FORK === 'true' ? 'main' : DRE.network.name;
-  const wethAddress = getParamPerNetwork(config.WrappedNativeToken, <eNetwork>currentNetwork);
+export const getWrappedNativeTokenAddress = async (
+  config: IBaseConfiguration
+) => {
+  const currentNetwork =
+    process.env.MAINNET_FORK === "true" ? "main" : DRE.network.name;
+  const wethAddress = getParamPerNetwork(
+    config.WrappedNativeToken,
+    <eNetwork>currentNetwork
+  );
   if (wethAddress) {
     return wethAddress;
   }
-  if (currentNetwork.includes('main')) {
-    throw new Error('WETH not set at mainnet configuration.');
+  if (currentNetwork.includes("main")) {
+    throw new Error("WETH not set at mainnet configuration.");
   }
   const weth = await deployWETHMocked();
   return weth.address;
@@ -145,10 +175,10 @@ export const getLendingRateOracles = (poolConfig: IBaseConfiguration) => {
 
 export const getQuoteCurrency = async (config: IBaseConfiguration) => {
   switch (config.OracleQuoteCurrency) {
-    case 'ETH':
-    case 'WETH':
+    case "ETH":
+    case "WETH":
       return getWethAddress(config);
-    case 'USD':
+    case "USD":
       return config.ProtocolGlobalParams.UsdAddress;
     default:
       throw `Quote ${config.OracleQuoteCurrency} currency not set. Add a new case to getQuoteCurrency switch`;
