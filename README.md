@@ -90,8 +90,8 @@
       <ul>
         <li><a href="#built-with">WalletBalanceProvider</a></li>
       </ul>
-      <a href="#core-contracts">Configurations</a>
-      <a href="#core-contracts">Deployment</a>
+      <a href="#configurations">Configurations</a>
+      <a href="#deployment">Deployment</a>
     </li>
   </ol>
 </details>
