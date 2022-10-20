@@ -90,7 +90,11 @@
       <ul>
         <li><a href="#built-with">WalletBalanceProvider</a></li>
       </ul>
+    </li>
+    <li>
       <a href="#configurations">Configurations</a>
+    </li>
+    <li>
       <a href="#deployment">Deployment</a>
     </li>
   </ol>
@@ -100,6 +104,106 @@
 
 ## Core Contracts
 
-### LendingPoolAddressesProvider
+<!-- CONFIGURATIONS -->
 
-### WETHGateway
+## Configurations
+
+### Npm scripts
+
+1. Declare a new network in `package.json` file. The network's name should match with that declared in hardhat.config.ts
+
+```json
+{
+  ...
+  "scripts": {
+    ...
+    "hardhat:vdev": "hardhat --network vdev",
+  }
+}
+```
+
+2. Add a new script to fully migrate contracts to the network declared above
+
+```json
+{
+  ...
+  "scripts": {
+    ...
+    "vchain:vdev:full:migration": "npm run compile && npm run hardhat:vdev vchain:mainnet -- --pool Vchain --verify",
+  }
+}
+```
+
+3. Add type definitions in `helpers/types.ts`
+
+```typescript
+export type eNetwork = ... | eVchainNetwork;
+...
+export enum eVchainNetwork {
+  vchain = "vchain",
+  vdev = "vdev",
+}
+...
+export type iVchainPoolAssets<T> = Pick<iAssetBase<T>, "VUSD">;
+...
+export type ... | iVchainParamsPerNetwork<T>;
+...
+export interface iVchainParamsPerNetwork<T> {
+  [eVchainNetwork.vchain]: T;
+  [eVchainNetwork.vdev]: T;
+}
+...
+export interface IVchainConfiguration extends ICommonConfiguration {
+  ReservesConfig: iVchainPoolAssets<IReserveParams>;
+}
+
+// add new asset
+export interface iAssetBase<T> {
+  VUSD: T;
+  ...
+}
+```
+
+4. Add URL for the new network in `helper-hardhat-config.ts`
+
+```typescript
+export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
+  ...
+  [eVchainNetwork.vdev]: `https://staging.rpc.vcex.xyz`,
+}
+```
+
+5. Add the new network in `hardhat.config.ts`
+
+```typescript
+const builderConfig = {
+  ...
+  etherscan: {
+    apiKey: {
+      vdev: // ADD KEY HERE
+    },
+    customChains: [
+      {
+        network: "vdev",
+        chainId: 15000,
+        urls: {
+          apiURL: "https://staging.explorer.vcex.xyz/api",
+          browserURL: "https://staging.explorer.vcex.xyz",
+        },
+      }
+    ]
+  },
+  ...
+  networks: {
+    ...
+    vdev: {
+      ...getCommonNetworkConfig(eVchainNetwork.vdev, 15000),
+      accounts: { mnemonic: process.env.MNEMONIC },
+    }
+  }
+}
+```
+
+<!-- Deployment -->
+
+## Deployment
